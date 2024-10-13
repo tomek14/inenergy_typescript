@@ -89,12 +89,12 @@ function handleSelect(service: ServiceType, previouslySelectedServices: ServiceT
 function calculatePriceInternal(selectedServices: ServiceType[], selectedItemsWithPrices: ServicePriceItem[]): number {
     let result: number = 0.0;
 
-    const grouped = selectedItemsWithPrices.reduce((acc, item) => {
-        if (!acc[item.Item]) {
-            acc[item.Item] = [];
+    const grouped = selectedItemsWithPrices.reduce((accumulator, currentValue) => {
+        if (!accumulator[currentValue.Item]) {
+            accumulator[currentValue.Item] = [];
         }
-        acc[item.Item].push(item);
-        return acc;
+        accumulator[currentValue.Item].push(currentValue);
+        return accumulator;
     }, {} as Record<string, ServicePriceItem[]>);
 
     for (const itemGroup of Object.values(grouped)) {
@@ -113,13 +113,13 @@ function calculatePriceInternal(selectedServices: ServiceType[], selectedItemsWi
 function mergeYearAndBasePriceLists(discountsPriceList: ServicePriceItem[]): ServicePriceItem[] {
     const result: ServicePriceItem[] = [];
 
-    const grouped = discountsPriceList.reduce((acc, item) => {
-        const key = `${item.Item}_${item.RequiredItem}`;
-        if (!acc[key]) {
-            acc[key] = [];
+    const grouped = discountsPriceList.reduce((accumulator, currentValue) => {
+        const key = `${currentValue.Item}_${currentValue.RequiredItem}`;
+        if (!accumulator[key]) {
+            accumulator[key] = [];
         }
-        acc[key].push(item);
-        return acc;
+        accumulator[key].push(currentValue);
+        return accumulator;
     }, {} as Record<string, ServicePriceItem[]>);
 
     for (const key in grouped) {
