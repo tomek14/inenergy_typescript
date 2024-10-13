@@ -95,7 +95,7 @@ function calculatePriceInternal(selectedServices: ServiceType[], selectedItemsWi
         }
         acc[item.Item].push(item);
         return acc;
-    }, {} as { [key: string]: ServicePriceItem[] });
+    }, {} as Record<string, ServicePriceItem[]>);
 
     for (const itemGroup of Object.values(grouped)) {
         const prices = itemGroup.filter(x => selectedServices.includes(x.RequiredItem) || x.RequiredItem === undefined);
