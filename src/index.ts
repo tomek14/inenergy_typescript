@@ -5,7 +5,7 @@ export const updateSelectedServices = (previouslySelectedServices: ServiceType[]
     switch (action.type) {
         case "Select":
             if (previouslySelectedServices.includes(action.service)) {
-                return previouslySelectedServices;
+                return [...previouslySelectedServices];
             }
             return handleSelect(action.service, previouslySelectedServices);
 
@@ -32,9 +32,10 @@ export const calculatePrice = (selectedServices: ServiceType[], selectedYear: Se
 
 function handleDeselect(service: ServiceType, previouslySelectedServices: ServiceType[]): ServiceType[] {
     if (!previouslySelectedServices.some(x => x === service)) {
-        return previouslySelectedServices;
+        return [...previouslySelectedServices];
     }
 
+    const result = [...previouslySelectedServices];
     const servicesWithConstraints = priceList.filter(x => x.RequiredItem !== undefined);
     const relatedMainServices = servicesWithConstraints.filter(x => x.RequiredItem === service);
 
@@ -46,44 +47,44 @@ function handleDeselect(service: ServiceType, previouslySelectedServices: Servic
 
             const shouldBeSelectedAfterDeletion = subRelatedMainServices
                 .map(s => s.RequiredItem)
-                .some(reqItem => previouslySelectedServices.includes(reqItem));
+                .some(reqItem => result.includes(reqItem));
 
             if (!shouldBeSelectedAfterDeletion) {
-                const index = previouslySelectedServices.indexOf(relatedMainService.Item as ServiceType);
+                const index = result.indexOf(relatedMainService.Item as ServiceType);
                 if (index !== -1) {
-                    previouslySelectedServices.splice(index, 1);
+                    result.splice(index, 1);
                 }
             }
         }
     }
 
-    const serviceIndex = previouslySelectedServices.indexOf(service);
+    const serviceIndex = result.indexOf(service);
     if (serviceIndex !== -1) {
-        previouslySelectedServices.splice(serviceIndex, 1);
+        result.splice(serviceIndex, 1);
     }
 
-    return previouslySelectedServices;
+    return result;
 }
 
 function handleSelect(service: ServiceType, previouslySelectedServices: ServiceType[]): ServiceType[] {
 
+    const result = [...previouslySelectedServices];
     const servicesWithConstraints = priceList.filter(x => x.RequiredItem !== undefined);
-
     const requiredServices = servicesWithConstraints.filter(x => x.Item === service).map(s => s.RequiredItem);
 
     if (requiredServices.length > 0) {
         const isConstraintSelected = requiredServices.some(requiredService =>
-            previouslySelectedServices.includes(requiredService)
+            result.includes(requiredService)
         );
 
         if (isConstraintSelected) {
-            previouslySelectedServices.push(service);
+            result.push(service);
         }
 
-        return previouslySelectedServices;
+        return result;
     }
 
-    return previouslySelectedServices.length === 0 ? [service] : previouslySelectedServices;
+    return result.length === 0 ? [service] : result;
 }
 
 function calculatePriceInternal(selectedServices: ServiceType[], selectedItemsWithPrices: ServicePriceItem[]): number {
