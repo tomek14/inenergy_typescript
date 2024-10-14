@@ -93,8 +93,7 @@ function calculatePriceInternal(selectedServices: ServiceType[], selectedItemsWi
         const currentItems = accumulator[currentValue.Item] || [];
 
         return {
-            ...accumulator,
-            [currentValue.Item]: [...currentItems, currentValue]
+            ...accumulator, [currentValue.Item]: [...currentItems, currentValue]
         };
     }, {});
 
