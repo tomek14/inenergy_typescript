@@ -88,7 +88,6 @@ function handleSelect(service: ServiceType, previouslySelectedServices: ServiceT
 }
 
 function calculatePriceInternal(selectedServices: ServiceType[], selectedItemsWithPrices: ServicePriceItem[]): number {
-    let result: number = 0.0;
 
     const grouped = selectedItemsWithPrices.reduce<Record<string, ServicePriceItem[]>>((accumulator, currentValue) => {
         if (!accumulator[currentValue.Item]) {
@@ -98,22 +97,20 @@ function calculatePriceInternal(selectedServices: ServiceType[], selectedItemsWi
         return accumulator;
     }, {});
 
-    for (const key in grouped) {
+    return Object.keys(grouped).reduce((acc, key) => {
         const groupedItem = grouped[key];
         const prices = groupedItem.filter(x => selectedServices.includes(x.RequiredItem) || x.RequiredItem === undefined);
 
         if (prices.length > 0) {
-            // take lowest price
             const priceValue = prices.reduce((min, x) => x.Price < min.Price ? x : min);
-            result += priceValue.Price;
+            return acc + priceValue.Price;
         }
-    }
 
-    return result;
+        return acc;
+    }, 0);
 }
 
 function mergeYearAndBasePriceLists(discountsPriceList: ServicePriceItem[]): ServicePriceItem[] {
-    const result: ServicePriceItem[] = [];
 
     const grouped = discountsPriceList.reduce<Record<string, ServicePriceItem[]>>((accumulator, currentValue) => {
         const key = `${currentValue.Item}_${currentValue.RequiredItem}`;
@@ -124,18 +121,20 @@ function mergeYearAndBasePriceLists(discountsPriceList: ServicePriceItem[]): Ser
         return accumulator;
     }, {});
 
-    for (const key in grouped) {
+
+    return Object.keys(grouped).reduce((acc, key) => {
         const groupedItem = grouped[key];
         const basePrices = groupedItem.filter(x => x.Year === undefined).sort((a, b) => a.Price - b.Price)[0];
         const yearPrices = groupedItem.filter(x => x.Year !== undefined).sort((a, b) => a.Price - b.Price)[0];
 
         if (yearPrices) {
-            result.push(yearPrices);
+            acc.push(yearPrices);
         } else if (basePrices) {
-            result.push(basePrices);
+            acc.push(basePrices);
         }
-    }
-    return result;
+
+        return acc;
+    }, [] as ServicePriceItem[]); 
 }
 
 function matchPricesWithServices(selectedServices: ServiceType[], priceLists: ServicePriceItem[]): ServicePriceItem[] {
